@@ -50,4 +50,38 @@ export class ClientsService {
       })
       .catch(() => new NotFoundException());
   }
+
+  async attachHealthProblems(params: { clientId: string; healthProblemsIds: Array<string> }) {
+    const client = await this.prisma.client.findFirst({
+      where: { id: params.clientId },
+    });
+
+    if (!client) {
+      throw new NotFoundException("Client not found");
+    }
+
+    const existing = await this.prisma.healthProblem.findMany({
+      where: { id: { in: params.healthProblemsIds } },
+      select: { id: true },
+    });
+    const existingIds = new Set(existing.map((p) => p.id));
+    const missing = params.healthProblemsIds.filter((id) => !existingIds.has(id));
+
+    if (missing.length > 0) {
+      throw new NotFoundException({
+        message: "Health problem(s) not found",
+        invalidIds: missing,
+      });
+    }
+
+    return this.prisma.$transaction(
+      params.healthProblemsIds.map((problemId) =>
+        this.prisma.clientHealthProblem.upsert({
+          where: { clientId_problemId: { clientId: client.id, problemId } },
+          create: { clientId: client.id, problemId },
+          update: {},
+        }),
+      ),
+    );
+  }
 }

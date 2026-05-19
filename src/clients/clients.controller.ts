@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from "@nest
 import { ClientsService } from "./clients.service";
 import { CreateClientDto } from "./dto/create-client.dto";
 import { UpdateClientDto } from "./dto/update-client.dto";
+import { AttachHealthProblemDTO } from "./dto/attach-problem.dto";
 
 @Controller("clients")
 export class ClientsController {
@@ -30,5 +31,16 @@ export class ClientsController {
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.clientsService.remove(id);
+  }
+
+  @Post("problem/:id")
+  attachHealthProblems(
+    @Param("id") id: string,
+    @Body() attachHealthProblemDTO: AttachHealthProblemDTO,
+  ) {
+    return this.clientsService.attachHealthProblems({
+      clientId: id,
+      healthProblemsIds: attachHealthProblemDTO.problems,
+    });
   }
 }
