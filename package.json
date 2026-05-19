@@ -1,0 +1,12 @@
+{
+  "name": "@test/olisaude",
+  "private": true,
+  "type": "module",
+  "module": "src/main.ts",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.3"
+  }
+}
