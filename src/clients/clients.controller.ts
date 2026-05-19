@@ -18,6 +18,11 @@ export class ClientsController {
     return this.clientsService.findAll();
   }
 
+  @Get("risk")
+  getRisk() {
+    return this.clientsService.getRisk();
+  }
+
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.clientsService.findOne(id);

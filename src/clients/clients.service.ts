@@ -20,35 +20,20 @@ export class ClientsService {
     return this.prisma.client.findMany();
   }
 
-  findOne(id: string) {
-    return this.prisma.client
-      .findFirstOrThrow({
-        where: {
-          id,
-        },
-      })
-      .catch(() => new NotFoundException());
+  async findOne(id: string) {
+    const client = await this.prisma.client.findUnique({ where: { id } });
+    if (!client) throw new NotFoundException();
+    return client;
   }
 
-  update(id: string, updateClientDto: UpdateClientDto) {
-    return this.prisma.client
-      .update({
-        data: updateClientDto,
-        where: {
-          id,
-        },
-      })
-      .catch(() => new NotFoundException());
+  async update(id: string, updateClientDto: UpdateClientDto) {
+    await this.findOne(id);
+    return this.prisma.client.update({ data: updateClientDto, where: { id } });
   }
 
-  remove(id: string) {
-    return this.prisma.client
-      .delete({
-        where: {
-          id,
-        },
-      })
-      .catch(() => new NotFoundException());
+  async remove(id: string) {
+    await this.findOne(id);
+    return this.prisma.client.delete({ where: { id } });
   }
 
   async attachHealthProblems(params: { clientId: string; healthProblemsIds: Array<string> }) {
@@ -83,5 +68,40 @@ export class ClientsService {
         }),
       ),
     );
+  }
+
+  async getRisk() {
+    const clientsWithHealthProblems = await this.prisma.client.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 10,
+      include: {
+        clientHealthProblems: {
+          select: {
+            healthProblem: {
+              select: {
+                severity: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const clientsWithTotalRisk = clientsWithHealthProblems.map((client) => {
+      const healthProblemSum = client.clientHealthProblems
+        .map((i) => i.healthProblem.severity)
+        .reduce((a, b) => a + b, 0);
+
+      const { clientHealthProblems: _clientHealthProblems, ...rest } = client;
+
+      return {
+        ...rest,
+        totalRisk: (1 / (1 + Math.exp(-(-2.8 + healthProblemSum)))) * 100,
+      };
+    });
+
+    return clientsWithTotalRisk;
   }
 }

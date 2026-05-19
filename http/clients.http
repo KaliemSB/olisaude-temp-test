@@ -28,9 +28,13 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:3000/clients/problem/9bb2a2bb-ea3a-434f-af93-4fd517ac19ae HTTP/1.1
+POST http://localhost:3000/clients/problem/6da5d999-6692-4f58-b6d8-9ac805f5e873 HTTP/1.1
 Content-Type: application/json
 
 {
-  "problems": ["019e3eb5-5e25-7000-8e01-bb27d189830d"]
+  "problems": ["019e3ec9-1004-7000-8682-360390c157d2", "019e3ec9-1004-7003-a888-48ca8c8bea88"]
 }
+
+###
+
+GET http://localhost:3000/clients/risk
