@@ -13,28 +13,32 @@ enum Sex {
 }
 
 model Client {
-  id        String   @id @unique @default(uuid())
-  name      String
-  birthDate DateTime @map("birth_date")
-  sex       Sex
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                   String                @id @unique @default(uuid())
+  name                 String
+  birthDate            DateTime              @map("birth_date")
+  sex                  Sex
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  clientHealthProblems ClientHealthProblem[]
 
   @@map("clients")
 }
 
 model ClientHealthProblem {
-  clientId  String
-  problemId String
+  client        Client        @relation(fields: [clientId], references: [id])
+  clientId      String
+  healthProblem HealthProblem @relation(fields: [problemId], references: [id])
+  problemId     String
 
   @@id([clientId, problemId])
   @@map("clients_health_problems")
 }
 
 model HealthProblem {
-  id       String @id @unique @default(uuid())
-  name     String
-  severity Int
+  id                   String                @id @unique @default(uuid())
+  name                 String
+  severity             Int
+  clientHealthProblems ClientHealthProblem[]
 
   @@map("health_problems")
 }
