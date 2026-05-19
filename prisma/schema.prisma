@@ -26,9 +26,9 @@ model Client {
 
 model ClientHealthProblem {
   client        Client        @relation(fields: [clientId], references: [id])
-  clientId      String
+  clientId      String        @map("client_id")
   healthProblem HealthProblem @relation(fields: [problemId], references: [id])
-  problemId     String
+  problemId     String        @map("problem_id")
 
   @@id([clientId, problemId])
   @@map("clients_health_problems")
