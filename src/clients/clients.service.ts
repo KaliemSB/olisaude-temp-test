@@ -28,7 +28,15 @@ export class ClientsService {
 
   async update(id: string, updateClientDto: UpdateClientDto) {
     await this.findOne(id);
-    return this.prisma.client.update({ data: updateClientDto, where: { id } });
+    return this.prisma.client.update({
+      data: {
+        ...updateClientDto,
+        birthDate: updateClientDto.birthDate
+          ? new Date(updateClientDto.birthDate)
+          : undefined,
+      },
+      where: { id },
+    });
   }
 
   async remove(id: string) {
@@ -45,29 +53,33 @@ export class ClientsService {
       throw new NotFoundException("Client not found");
     }
 
-    const existing = await this.prisma.healthProblem.findMany({
-      where: { id: { in: params.healthProblemsIds } },
-      select: { id: true },
-    });
-    const existingIds = new Set(existing.map((p) => p.id));
-    const missing = params.healthProblemsIds.filter((id) => !existingIds.has(id));
+    const uniqueProblemIds = [...new Set(params.healthProblemsIds)];
 
-    if (missing.length > 0) {
-      throw new NotFoundException({
-        message: "Health problem(s) not found",
-        invalidIds: missing,
+    return this.prisma.$transaction(async (tx) => {
+      const existing = await tx.healthProblem.findMany({
+        where: { id: { in: uniqueProblemIds } },
+        select: { id: true },
       });
-    }
+      const existingIds = new Set(existing.map((p) => p.id));
+      const missing = uniqueProblemIds.filter((id) => !existingIds.has(id));
 
-    return this.prisma.$transaction(
-      params.healthProblemsIds.map((problemId) =>
-        this.prisma.clientHealthProblem.upsert({
-          where: { clientId_problemId: { clientId: client.id, problemId } },
-          create: { clientId: client.id, problemId },
-          update: {},
-        }),
-      ),
-    );
+      if (missing.length > 0) {
+        throw new NotFoundException({
+          message: "Health problem(s) not found",
+          invalidIds: missing,
+        });
+      }
+
+      return Promise.all(
+        uniqueProblemIds.map((problemId) =>
+          tx.clientHealthProblem.upsert({
+            where: { clientId_problemId: { clientId: client.id, problemId } },
+            create: { clientId: client.id, problemId },
+            update: {},
+          }),
+        ),
+      );
+    });
   }
 
   async getRisk() {

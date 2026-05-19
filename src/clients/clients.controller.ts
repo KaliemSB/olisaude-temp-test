@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete } from "@nestjs/common";
 import { ClientsService } from "./clients.service";
 import { CreateClientDto } from "./dto/create-client.dto";
 import { UpdateClientDto } from "./dto/update-client.dto";
@@ -6,7 +6,7 @@ import { AttachHealthProblemDTO } from "./dto/attach-problem.dto";
 
 @Controller("clients")
 export class ClientsController {
-  constructor(@Inject() private readonly clientsService: ClientsService) {}
+  constructor(private readonly clientsService: ClientsService) {}
 
   @Post()
   create(@Body() createClientDto: CreateClientDto) {
