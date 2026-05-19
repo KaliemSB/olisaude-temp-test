@@ -1,0 +1,27 @@
+GET http://localhost:3000/clients
+
+###
+
+GET http://localhost:3000/clients/123
+
+###
+
+POST http://localhost:3000/clients HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "test client",
+  "birthDate": "2000-01-01",
+  "sex": "ssssss"
+}
+
+###
+
+POST http://localhost:3000/clients HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "test client",
+  "birthDate": "2000-01-01",
+  "sex": "male"
+}

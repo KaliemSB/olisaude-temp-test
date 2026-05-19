@@ -4,13 +4,16 @@
   "type": "module",
   "module": "src/main.ts",
   "scripts": {
-    "dev": "bun run --hot ."
+    "dev": "bun run --watch ."
   },
   "dependencies": {
     "@nestjs/common": "^11.1.21",
     "@nestjs/core": "^11.1.21",
+    "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.1.21",
-    "@prisma/adapter-libsql": "^7.8.0"
+    "@prisma/adapter-libsql": "^7.8.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.21",
